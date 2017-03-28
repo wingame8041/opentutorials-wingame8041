@@ -1,3 +1,23 @@
+<?php
+//1. 데이터베이스 서버에 접속
+$link = mysql_connect('localhost', 'root', '1234');
+if(!$link) {
+	die('Could not connect : ' . mysql_error());
+}
+//2. opentutorials 데이터베이스 선택
+mysql_select_db('opentutorials');
+// 인코딩과 관련된 부분, 지금은 이해할 필요가 없다.
+mysql_query("set session character_set_connection=utf8;");
+mysql_query("set session character_set_results=utf8;");
+mysql_query("set session character_set_client=utf8;");
+// 아래에서 별도로 설명하겠다.
+if(!empty($_GET['id'])) {
+	//$sql이라는 변수에 SQL 문을 저장한다.
+	$sql = "SELECT * FROM topic WHERE id = " . $_GET['id'];
+	$result = mysql_query($sql);
+	$topic = mysql_fetch_assoc($result);
+}
+?>
 <!DOCTYPE html>
 <html>
 	<head>
@@ -86,28 +106,29 @@
 			</div>
 			<nav>
 				<ul>
-					<li><a href="http://opentutorials.org/course/49/17">JavaScript</a></li>
-					<li><a href="http://opentutorials.org/course/49/16">변수와 상수</a></li>
-					<li><a href="http://opentutorials.org/course/49/18">연산자</a></li>
-					<li><a href="http://opentutorials.org/course/49/19">함수</a></li>
-					<li><a href="http://opentutorials.org/course/49/20">이벤트</a></li>
-					<li><a href="http://opentutorials.org/course/49/21">객체</a></li>
+					<?php
+					$sql = "select id, title from topic";
+					$result = mysql_query($sql);
+					while($row = mysql_fetch_assoc($result)) {
+						echo "
+							<li>
+								<a href=\"?id={$row['id']}\">{$row['title']}</a>
+							</li>";
+					}
+					?>				
 				</ul>
 			</nav>
 			<article>
-				<h2>변수와 상수</h2>
-				<div>
-					<p>변수란</p>
-					<ul>
-						<li>변하는 값</li>
-						<li>x = 10 일 때 왼쪽항인 x는 오른쪽 항인 10에 따라 다른 값이 지정된다.</li>
-					</ul>
-					<p>상수란</p>
-					<ul>
-						<li>변하지 않는 값</li>
-						<li>x = 10 일 때 오른쪽 항인 10이 상수가 된다.</li>
-					</ul>
-				</div>
+				<?php
+				if(!empty($topic)) {
+				?>
+					<h2><?=$topic['title']?></h2>
+					<div class="description">
+						<?=$topic['description']?>
+					</div>
+				<?php
+				}
+				?>
 			</article>
 		</div>
 	</body>
